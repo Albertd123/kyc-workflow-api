@@ -1,4 +1,4 @@
-package com.example.kycworkflowapi.controller;
+package com.example.controller;
 
 import com.example.kycworkflowapi.model.Customer;
 import com.example.kycworkflowapi.model.KycResult;

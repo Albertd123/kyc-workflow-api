@@ -1,4 +1,4 @@
-package com.example.kyc_workflow_api;
+package com.example.kycworkflowapi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
