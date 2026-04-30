@@ -6,6 +6,8 @@ import com.example.kycworkflowapi.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.List;
+
 
 @Service
 public class KycService {
@@ -19,6 +21,12 @@ public class KycService {
     public Customer createCustomer(Customer customer) {
         return customerRepository.save(customer);
     }
+
+    public List<Customer> createCustomers(List<Customer> customers) 
+    {
+    return customerRepository.saveAll(customers);
+    }
+
 
     public Optional<Customer> getCustomer(Long id) {
         return customerRepository.findById(id);

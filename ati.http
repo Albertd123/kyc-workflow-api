@@ -1,0 +1,190 @@
+###############################################
+### KYC WORKFLOW API — FULL TEST SUITE
+### VS Code REST Client
+###############################################
+
+@baseUrl = http://localhost:8080/api/kyc
+
+################################################
+### 0. HEALTH CHECK
+################################################
+GET {{baseUrl}}/health
+
+
+################################################
+### 1. CREATE SINGLE CUSTOMERS
+################################################
+
+### Create a LOW-risk customer
+POST {{baseUrl}}/customer
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "address": "123 Main St",
+  "country": "US",
+  "riskFlag": "LOW",
+  "email": "john.doe@example.com",
+  "phone": "+1-555-123-4567"
+}
+
+### Create a HIGH-risk customer
+POST {{baseUrl}}/customer
+Content-Type: application/json
+
+{
+  "name": "Jane Danger",
+  "address": "45 Risky Ave",
+  "country": "UK",
+  "riskFlag": "HIGH",
+  "email": "jane.danger@example.com",
+  "phone": "+44-555-987-654"
+}
+
+### Create a customer with missing fields (to trigger validation / REVIEW)
+POST {{baseUrl}}/customer
+Content-Type: application/json
+
+{
+  "name": "",
+  "address": "",
+  "country": "",
+  "riskFlag": "LOW",
+  "email": "invalid-email",
+  "phone": "not-a-phone"
+}
+
+
+################################################
+### 2. BULK CREATE CUSTOMERS (REAL ARRAY)
+################################################
+
+### Bulk create multiple customers in one request
+POST {{baseUrl}}/customers/bulk
+Content-Type: application/json
+
+[
+  {
+    "name": "Bulk Customer 1",
+    "address": "1 Bulk Street",
+    "country": "US",
+    "riskFlag": "LOW",
+    "email": "bulk1@example.com",
+    "phone": "+1-555-1001"
+  },
+  {
+    "name": "Bulk Customer 2",
+    "address": "2 Bulk Street",
+    "country": "CA",
+    "riskFlag": "HIGH",
+    "email": "bulk2@example.com",
+    "phone": "+1-555-1002"
+  },
+  {
+    "name": "Bulk Customer 3",
+    "address": "3 Bulk Street",
+    "country": "DE",
+    "riskFlag": "MEDIUM",
+    "email": "bulk3@example.com",
+    "phone": "+49-555-1003"
+  },
+  {
+    "name": "Bulk Customer 4",
+    "address": "4 Bulk Street",
+    "country": "IN",
+    "riskFlag": "LOW",
+    "email": "bulk4@example.com",
+    "phone": "+91-555-1004"
+  }
+]
+
+
+################################################
+### 3. SIMULATED MANY CUSTOMERS (INTERVIEW DEMO)
+################################################
+# These show that the API can handle many customers.
+# In a real load test, I'd use a script or tool like k6/JMeter.
+
+### Example extra customer A
+POST {{baseUrl}}/customer
+Content-Type: application/json
+
+{
+  "name": "Customer A",
+  "address": "Address A",
+  "country": "US",
+  "riskFlag": "LOW",
+  "email": "customerA@example.com",
+  "phone": "+1-555-2001"
+}
+
+### Example extra customer B
+POST {{baseUrl}}/customer
+Content-Type: application/json
+
+{
+  "name": "Customer B",
+  "address": "Address B",
+  "country": "FR",
+  "riskFlag": "MEDIUM",
+  "email": "customerB@example.com",
+  "phone": "+33-555-2002"
+}
+
+
+################################################
+### 4. GET CUSTOMERS
+################################################
+
+### Get customer with ID 1
+GET {{baseUrl}}/customer/1
+
+### Get customer with ID 2
+GET {{baseUrl}}/customer/2
+
+### Get non-existent customer (should be 404)
+GET {{baseUrl}}/customer/9999
+
+
+################################################
+### 5. VALIDATE CUSTOMERS
+################################################
+
+### Validate customer 1 (likely APPROVED if LOW risk and valid data)
+POST {{baseUrl}}/validate/1
+
+### Validate customer 2 (likely REVIEW if HIGH risk)
+POST {{baseUrl}}/validate/2
+
+### Validate non-existent customer (REJECTED: Customer not found)
+POST {{baseUrl}}/validate/9999
+
+
+################################################
+### 6. VALIDATION / ERROR SCENARIOS
+################################################
+
+### Invalid JSON (should return 400)
+POST {{baseUrl}}/customer
+Content-Type: application/json
+
+{
+  "name": "Bad JSON"
+  "address": "Missing comma"
+}
+
+### Missing required fields (should trigger validation errors)
+POST {{baseUrl}}/customer
+Content-Type: application/json
+
+{
+  "name": "",
+  "address": "",
+  "country": "",
+  "riskFlag": "LOW",
+  "email": "not-an-email",
+  "phone": "123"
+}
+
+### Wrong HTTP method on validate (should be 405 or 404 depending on config)
+GET {{baseUrl}}/validate/1
