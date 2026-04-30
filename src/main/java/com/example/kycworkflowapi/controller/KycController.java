@@ -28,8 +28,7 @@ public class KycController {
     }
 
     @PostMapping("/customers/bulk")
-    public ResponseEntity<List<Customer>> createCustomers(
-            @Valid @RequestBody List<Customer> customers) {
+    public ResponseEntity<List<Customer>> createCustomers(@Valid @RequestBody List<Customer> customers) {
         return ResponseEntity.ok(kycService.createCustomers(customers));
     }
 
